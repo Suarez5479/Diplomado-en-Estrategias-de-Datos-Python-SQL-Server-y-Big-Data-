@@ -1,0 +1,5 @@
+*.csv
+*.xlsx
+*checkpoint*
+Datos/.ipynb_checkpoints/
+Cuadernos/.ipynb_checkpoints/
