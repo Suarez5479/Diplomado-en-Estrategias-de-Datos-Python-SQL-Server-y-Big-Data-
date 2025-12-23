@@ -1,23 +1,35 @@
-# Usar una imagen base de Python ligera
+# Imagen base ligera
 FROM python:3.11-slim
 
-# Establecer el directorio de trabajo
+# Evitar prompts interactivos
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Dependencias del sistema (necesarias para pyodbc)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    unixodbc \
+    unixodbc-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Directorio de trabajo
 WORKDIR /app
 
-# Instalar Poetry globalmente
-RUN pip install poetry
+# Instalar Poetry
+RUN pip install --no-cache-dir poetry
 
-# 1. Copiar y instalar dependencias
-# Se copian los archivos de configuración de Poetry
-COPY pyproject.toml poetry.lock /app/
+# Desactivar virtualenv interno de Poetry (buena práctica en Docker)
+RUN poetry config virtualenvs.create false
 
-# 2. Instalar las dependencias de producción (sin el entorno de proyecto)
-# poetry install --no-root asegura que se instale solo lo necesario para el ambiente.
+# Copiar SOLO pyproject.toml
+COPY pyproject.toml /app/
+
+# Instalar dependencias
 RUN poetry install --no-root
 
-# Exponer el puerto de JupyterLab
+# Exponer puerto de JupyterLab
 EXPOSE 8888
 
-# Comando para iniciar JupyterLab
-# Usamos 'poetry run' para ejecutar jupyter-lab dentro del entorno virtual de Poetry.
-CMD ["/bin/bash", "-c", "poetry run jupyter-lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root"]
+# Comando de arranque
+CMD ["poetry", "run", "jupyter-lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root"]
