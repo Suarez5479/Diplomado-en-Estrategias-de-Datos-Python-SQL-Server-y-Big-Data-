@@ -1,3 +1,10 @@
+# ========================
+# Datos pesados (Kaggle)
+# ========================
+*.csv
+*.zip
+data/nyc-taxi-trip-duration/
+
 *.csv
 *.xlsx
 *checkpoint*
